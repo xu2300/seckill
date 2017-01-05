@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--Configure the integration of the mybatis process
+    1.Configure database-related parameters-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!--2.Database connection pool-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <!--Configure the connection pool properties-->
+        <property name="driverClass" value="${driver}" />
+
+        <!-- Basic Attributes url、user、password -->
+        <property name="jdbcUrl" value="${url}" />
+        <property name="user" value="${username}" />
+        <property name="password" value="${password}" />
+
+        <!--c3p0 attributes-->
+        <property name="maxPoolSize" value="30"/>
+        <property name="minPoolSize" value="10"/>
+
+        <property name="autoCommitOnClose" value="false"/>
+
+        <!--Gets the connection timeout-->
+        <property name="checkoutTimeout" value="1000"/>
+        <!--Gets the number of connection failure retries-->
+        <property name="acquireRetryAttempts" value="2"/>
+    </bean>
+
+    <!--he convention is greater than the configuration-->
+    <!--３.config SqlSessionFactory-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+
+        <!--Injected into the database connection pool-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--config mybatis globale file:mybatis-config.xml-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--Scanning entity package, the use of aliases, multiple use; separated-->
+        <property name="typeAliasesPackage" value="org.seckill.entity"/>
+        <!--Scan sql configuration file: mapper required xml file-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+
+    <!--４:Configure scanning Dao interface package,
+    dynamic realization of DAO interface, into the spring container-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--inject SqlSessionFactory-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!-- Given the need to scan the Dao interface-->
+        <property name="basePackage" value="org.seckill.dao"/>
+    </bean>
+
+
+
+
+</beans>
